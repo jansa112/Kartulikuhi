@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8" />
+  <title>Kartulikuhja – püramiidmäng (punktidega)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- META / OWNERSHIP -->
+  <meta name="author" content="Jaanus Paasoja">
+  <meta name="copyright" content="© 2026 Jaanus Paasoja">
+  <meta name="license" content="CC BY-NC 4.0">
+  <meta name="description" content="Kartulikuhja püramiidmäng punktidega. Strateegiline ajaviitemäng.">
+  <meta name="keywords" content="kartulikuhja, püramiidmäng, strateegiamäng, loogika, punktid">
+
+  <!--
+  Kartulikuhja – püramiid (punktidega)
+  Owner/Author: Jaanus Paasoja
+  Year: 2026
+
+  License: Creative Commons Attribution–NonCommercial 4.0 International (CC BY-NC 4.0)
+  https://creativecommons.org/licenses/by-nc/4.0/
+
+  You may play, share, and adapt for non-commercial purposes with attribution.
+  Commercial use (selling, paid distribution, monetized bundling) is not allowed without permission.
+  -->
+
+  <style>
+    :root{
+      --bg1:#0b1020;
+      --bg2:#101a33;
+      --card: rgba(255,255,255,.08);
+      --text:#eaf0ff;
+      --muted: rgba(234,240,255,.72);
+      --accent:#9bffb2;
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 15% 10%, rgba(255,90,138,.22), transparent 60%),
+        radial-gradient(900px 700px at 85% 20%, rgba(68,215,255,.20), transparent 55%),
+        radial-gradient(1200px 800px at 60% 90%, rgba(155,255,178,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height:100vh;
+    }
+
+    .wrap{ max-width:1200px; margin:0 auto; padding:18px; }
+    header{
+      display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px;
+      margin-bottom:14px;
+    }
+    .title{ display:flex; flex-direction:column; gap:6px; }
+    h1{ margin:0; font-size:22px; letter-spacing:.2px; }
+    .subtitle{ color:var(--muted); font-size:14px; line-height:1.35; max-width:820px; }
+
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 12px; border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(10px);
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap:14px;
+    }
+    @media (max-width: 980px){ .grid{ grid-template-columns:1fr; } }
+
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .card .inner{ padding:14px; }
+
+    .topBar{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between;
+      padding:14px;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+    }
+
+    .scores{ display:flex; gap:10px; flex-wrap:wrap; }
+    .scoreBox{
+      min-width: 240px;
+      padding:12px;
+      border-radius:14px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.12);
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+    }
+    .scoreLeft{ display:flex; flex-direction:column; gap:4px; }
+    .scoreName{ font-weight:900; display:flex; align-items:center; gap:8px; }
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:3px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      font-size:12px; color:var(--muted);
+      background: rgba(255,255,255,.06);
+    }
+    .swatch{
+      width:12px; height:12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.35);
+      background: rgba(255,255,255,.25);
+    }
+    .scoreVal{ font-size:26px; font-weight:950; }
+
+    .controlsRow{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    button{
+      border:0;
+      padding:10px 12px;
+      border-radius: 999px;
+      color:var(--text);
+      font-weight:850;
+      cursor:pointer;
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      transition: transform .08s ease, background .12s ease, border-color .12s ease;
+    }
+    button:hover{ transform: translateY(-1px); background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.24); }
+    button:active{ transform: translateY(0px); }
+    button.primary{
+      background: linear-gradient(180deg, rgba(155,255,178,.25), rgba(155,255,178,.12));
+      border-color: rgba(155,255,178,.40);
+    }
+    button:disabled{ opacity:.45; cursor:not-allowed; transform:none; }
+
+    .helpBtn{
+      width:38px; height:38px; padding:0;
+      display:inline-flex; align-items:center; justify-content:center;
+      border-radius:999px;
+    }
+
+    .rulesBox{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.12);
+      color: rgba(234,240,255,.86);
+      font-size: 14px;
+      line-height:1.45;
+    }
+
+    .hintPanel{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.12);
+      display:none;
+      font-size:14px;
+      line-height:1.45;
+    }
+    .hintPanel.show{ display:block; }
+    .hintPanel b{ color:var(--text); }
+
+    /* Board */
+    .boardWrap{ position:relative; overflow:auto; }
+    .board{
+      position:relative;
+      padding:14px 10px 20px;
+      min-height: 420px;
+    }
+
+    /* SVG lines must be above potatoes */
+    svg.lines{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      z-index: 10;
+    }
+
+    .rowLine{ display:flex; justify-content:center; gap:12px; margin:10px 0; }
+
+    .potato{
+      width:46px; height:46px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: radial-gradient(circle at 30% 25%, rgba(255,255,255,.22), rgba(0,0,0,.18));
+      box-shadow:
+        0 8px 20px rgba(0,0,0,.26),
+        inset 0 1px 0 rgba(255,255,255,.18);
+      cursor:pointer;
+      position:relative;
+      z-index: 2;
+      transition: transform .08s ease, filter .12s ease, opacity .12s ease;
+    }
+    .potato:hover{ transform: translateY(-2px); filter: brightness(1.05); }
+    .potato:disabled{ cursor:not-allowed; opacity:.75; transform:none; }
+
+    .potato.preview{
+      outline: 3px solid rgba(155,255,178,.55);
+      outline-offset: 2px;
+    }
+
+    .tip{
+      position:absolute;
+      left:50%;
+      top:-10px;
+      transform: translate(-50%, -100%);
+      padding:6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--text);
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.16);
+      white-space: nowrap;
+      pointer-events:none;
+      opacity:0;
+      transition: opacity .10s ease;
+    }
+    .potato:hover .tip{ opacity:1; }
+
+    .lineStroke{
+      stroke: rgba(255,255,255,.95);
+      stroke-width: 6;
+      stroke-linecap: round;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,.35));
+    }
+
+    /* Right panel */
+    .panelTitle{ font-weight:950; margin:0 0 10px 0; }
+    .formGrid{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    @media (max-width: 520px){ .formGrid{ grid-template-columns:1fr; } }
+    label{ display:block; font-size:13px; color: var(--muted); margin-bottom:6px; }
+    input[type="number"], input[type="text"], select{
+      width:100%;
+      padding:10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.20);
+      color: var(--text);
+      outline:none;
+    }
+    select option{ color:#111; }
+    input:focus, select:focus{
+      border-color: rgba(155,255,178,.55);
+      box-shadow: 0 0 0 3px rgba(155,255,178,.12);
+    }
+
+    .rowFull{ grid-column: 1 / -1; }
+    .hidden{ display:none !important; }
+
+    .smallNote{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.12);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .log{
+      height: 220px;
+      overflow:auto;
+      background: rgba(0,0,0,.18);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding:10px 12px;
+      font-size: 13px;
+      color: rgba(234,240,255,.82);
+      line-height: 1.4;
+      margin-top:12px;
+    }
+
+    .gameOver{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(155,255,178,.12);
+      border:1px solid rgba(155,255,178,.30);
+      font-weight: 950;
+      display:none;
+    }
+    .gameOver.show{ display:block; }
+
+    footer{
+      margin-top:14px;
+      text-align:center;
+      color: rgba(234,240,255,.60);
+      font-size: 12px;
+      line-height:1.4;
+    }
+    footer a{ color: rgba(234,240,255,.78); text-decoration:none; }
+    footer a:hover{ text-decoration:underline; }
+
+    /* ===== Visual color picker (chips) ===== */
+    .colorPicker{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      padding:8px 10px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+    }
+    .colorChip{
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.35);
+      cursor:pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.18);
+      transition: transform .08s ease, filter .12s ease;
+    }
+    .colorChip:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+    .colorChip.selected{
+      outline: 3px solid rgba(155,255,178,.65);
+      outline-offset: 3px;
+    }
+    .colorChip[aria-disabled="true"]{
+      opacity:.35;
+      cursor:not-allowed;
+      filter:saturate(.6);
+      transform:none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <h1 id="uiTitle">Kartulikuhja – püramiidmäng</h1>
+        <div class="subtitle" id="uiSubtitle">
+          Värvi 1 kartul korraga. Kui pärast sinu käiku saab mõni rida (horisontaal või diagonaal) täis, saad selle rea pikkuse jagu punkte.
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <span class="pill" id="modePill">—</span>
+        <span class="pill" id="turnPill">—</span>
+        <button class="helpBtn" id="helpBtn" title="Reeglid / Rules">?</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT -->
+      <section class="card">
+        <div class="topBar">
+          <div class="scores">
+            <div class="scoreBox">
+              <div class="scoreLeft">
+                <div class="scoreName"><span class="swatch" id="swatch1"></span> <span id="name1">Mängija 1</span></div>
+                <div class="badge" id="badge1">—</div>
+              </div>
+              <div class="scoreVal" id="score1">0</div>
+            </div>
+
+            <div class="scoreBox">
+              <div class="scoreLeft">
+                <div class="scoreName"><span class="swatch" id="swatch2"></span> <span id="name2">Arvuti</span></div>
+                <div class="badge" id="badge2">—</div>
+              </div>
+              <div class="scoreVal" id="score2">0</div>
+            </div>
+          </div>
+
+          <div class="controlsRow">
+            <button class="primary" id="hintBtn" title="Soovitab käiku / Suggest a move">💡 <span id="hintLabel">Hint</span></button>
+            <button class="secondary" id="newBtn">↻ <span id="newLabel">Uus mäng</span></button>
+            <button class="secondary" id="clearLogBtn">🧹 <span id="logLabel">Puhasta logi</span></button>
+          </div>
+        </div>
+
+        <div class="inner">
+          <div class="rulesBox" id="rulesBox">
+            <b>Reeglid:</b> Iga käiguga värvi <b>täpselt 1</b> kartul. Kui pärast sinu käiku saab mõni rida täis, saad <b>rea pikkuse</b> jagu punkte ja rida tõmmatakse läbi.
+            <div style="margin-top:6px; color:rgba(234,240,255,.75); font-size:13px;">
+              Nipp: proovi teha käike, mis annavad kohe punkte, ja väldi olukorda, kus vastasel jääb rida “viimase puudu”.
+            </div>
+          </div>
+
+          <div class="hintPanel" id="hintPanel"></div>
+
+          <div class="boardWrap" style="margin-top:10px;">
+            <div class="board" id="board">
+              <svg class="lines" id="linesSvg"></svg>
+            </div>
+          </div>
+
+          <div id="gameOverBox" class="gameOver"></div>
+          <div class="log" id="log"></div>
+        </div>
+      </section>
+
+      <!-- RIGHT -->
+      <aside class="card">
+        <div class="inner">
+          <h3 class="panelTitle" id="settingsTitle">Seaded</h3>
+
+          <div class="formGrid">
+            <div>
+              <label for="lang" id="langLabel">Keel</label>
+              <select id="lang">
+                <option value="et" selected>Eesti</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="mode" id="modeLabel">Mängurežiim</label>
+              <select id="mode">
+                <option value="pve" selected>Inimene vs arvuti (PvE)</option>
+                <option value="pvp">Inimene vs inimene (PvP)</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="baseN" id="baseLabel">Alumise rea kartulid (2–15)</label>
+              <input id="baseN" type="number" min="2" max="15" value="8" />
+            </div>
+
+            <div>
+              <label for="difficulty" id="diffLabel">Arvuti raskus</label>
+              <select id="difficulty">
+                <option value="easy">Lihtne</option>
+                <option value="medium" selected>Keskmine</option>
+                <option value="hard">Raske</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="player1Name" id="p1NameLabel">Mängija 1 nimi</label>
+              <input id="player1Name" type="text" placeholder="nt Jaanus" />
+            </div>
+
+            <div id="p2NameWrap">
+              <label for="player2Name" id="p2NameLabel">Mängija 2 nimi</label>
+              <input id="player2Name" type="text" placeholder="nt Mari" />
+            </div>
+
+            <div class="rowFull">
+              <label id="p1ColorLabel">Mängija 1 värv</label>
+              <div class="colorPicker" id="p1ColorPicker" aria-label="Player 1 color picker"></div>
+              <input type="hidden" id="p1ColorValue" />
+            </div>
+
+            <div class="rowFull" id="p2ColorWrap">
+              <label id="p2ColorLabel">Mängija 2 värv</label>
+              <div class="colorPicker" id="p2ColorPicker" aria-label="Player 2 color picker"></div>
+              <input type="hidden" id="p2ColorValue" />
+            </div>
+
+            <div class="rowFull">
+              <button class="primary" id="applyBtn"> <span id="applyLabel">Rakenda seaded</span></button>
+            </div>
+          </div>
+
+          <div class="smallNote" id="noteBox">
+            <b>Read, mis annavad punkte:</b><br>
+            • horisontaal<br>
+            • diagonaal alla-vasakule<br>
+            • diagonaal alla-paremale<br><br>
+            <b>Vihje:</b> liigu hiirega kartuli peale – näed, mitu punkti see klikk annaks.
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer id="licenseFooter">
+      © 2026 Jaanus Paasoja · Litsents: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a><br>
+      Tasuta mängimiseks ja jagamiseks mitteärilisel eesmärgil. Kommertskasutus (müük / tasuline levitamine) on keelatud ilma loata.
+    </footer>
+  </div>
+
+  <script>
+    /*
+      Kartulikuhja – püramiid (punktidega)
+      Owner/Author: Jaanus Paasoja (© 2026)
+      License: CC BY-NC 4.0 — https://creativecommons.org/licenses/by-nc/4.0/
+    */
+
+    // ====== i18n ======
+    const I18N = {
+      et: {
+        title: "Kartulikuhja – püramiidmäng",
+        subtitle: "Värvi 1 kartul korraga. Kui pärast sinu käiku saab mõni rida (horisontaal või diagonaal) täis, saad selle rea pikkuse jagu punkte.",
+        modePve: "Režiim: Inimene vs arvuti (PvE)",
+        modePvp: "Režiim: Inimene vs inimene (PvP)",
+        turn: "Käik",
+        hint: "Hint",
+        newGame: "Uus mäng",
+        clearLog: "Puhasta logi",
+        settings: "Seaded",
+        language: "Keel",
+        gameMode: "Mängurežiim",
+        base: "Alumise rea kartulid (2–15)",
+        diff: "Arvuti raskus",
+        p1Name: "Mängija 1 nimi",
+        p2Name: "Mängija 2 nimi",
+        p1Color: "Mängija 1 värv",
+        p2Color: "Mängija 2 värv",
+        apply: "Rakenda seaded",
+        player1: "Mängija 1",
+        player2: "Mängija 2",
+        computer: "Arvuti",
+        rulesTitle: "Reeglid:",
+        rules: "Iga käiguga värvi täpselt 1 kartul. Kui pärast sinu käiku saab mõni rida täis, saad rea pikkuse jagu punkte ja rida tõmmatakse läbi.",
+        tip: "Nipp: proovi teha käike, mis annavad kohe punkte, ja väldi olukorda, kus vastasel jääb rida “viimase puudu”.",
+        hoverTipPos: (pts)=> pts>0 ? `+${pts} punkti` : "0 punkti",
+        hintText: (who, pts)=> `💡 <b>Soovitus (${who}):</b> kliki rohelise raamiga kartulit. See annaks <b>${pts}</b> punkti kohe.`,
+        hintText0: (who)=> `💡 <b>Soovitus (${who}):</b> kliki rohelise raamiga kartulit. See ei anna kohe punkte, aga võib blokeerida vastast.`,
+        gameOverWin: (winner, s1, s2)=> `🏁 Mäng läbi. Võitis ${winner}: ${s1} : ${s2}`,
+        gameOverDraw: (s1, s2)=> `🏁 Mäng läbi. Viik: ${s1} : ${s2}`,
+        logNew: (n,total)=> `🎮 Uus mäng: alus ${n} (kokku ${total} kartulit).`,
+        logMove: (who)=> `${who} värvis kartuli.`,
+        logScore: (who, lineCount, gained)=> `✅ ${who} lõpetas ${lineCount} rida ja sai +${gained} punkti.`,
+        note: `<b>Read, mis annavad punkte:</b><br>• horisontaal<br>• diagonaal alla-vasakule<br>• diagonaal alla-paremale<br><br><b>Vihje:</b> liigu hiirega kartuli peale – näed, mitu punkti see klikk annaks.`,
+        footer: `© 2026 Jaanus Paasoja · Litsents: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a><br>
+        Tasuta mängimiseks ja jagamiseks mitteärilisel eesmärgil. Kommertskasutus (müük / tasuline levitamine) on keelatud ilma loata.`
+      },
+      en: {
+        title: "Potato Pile – Pyramid Game",
+        subtitle: "Color exactly 1 potato per turn. If after your move any line (horizontal or diagonal) becomes full, you score the line length in points.",
+        modePve: "Mode: Player vs Computer (PvE)",
+        modePvp: "Mode: Player vs Player (PvP)",
+        turn: "Turn",
+        hint: "Hint",
+        newGame: "New game",
+        clearLog: "Clear log",
+        settings: "Settings",
+        language: "Language",
+        gameMode: "Game mode",
+        base: "Base row potatoes (2–15)",
+        diff: "Computer difficulty",
+        p1Name: "Player 1 name",
+        p2Name: "Player 2 name",
+        p1Color: "Player 1 color",
+        p2Color: "Player 2 color",
+        apply: "Apply settings",
+        player1: "Player 1",
+        player2: "Player 2",
+        computer: "Computer",
+        rulesTitle: "Rules:",
+        rules: "Each turn you must color exactly 1 potato. If after your move any line is complete, you score that line’s length in points and the line is crossed out.",
+        tip: "Tip: try moves that score immediately, and avoid leaving your opponent lines that are “one away”.",
+        hoverTipPos: (pts)=> pts>0 ? `+${pts} points` : "0 points",
+        hintText: (who, pts)=> `💡 <b>Suggestion (${who}):</b> click the green-outlined potato. It would score <b>${pts}</b> points immediately.`,
+        hintText0: (who)=> `💡 <b>Suggestion (${who}):</b> click the green-outlined potato. It doesn’t score immediately, but may block the opponent.`,
+        gameOverWin: (winner, s1, s2)=> `🏁 Game over. Winner: ${winner} — ${s1} : ${s2}`,
+        gameOverDraw: (s1, s2)=> `🏁 Game over. Draw: ${s1} : ${s2}`,
+        logNew: (n,total)=> `🎮 New game: base ${n} (${total} potatoes total).`,
+        logMove: (who)=> `${who} colored a potato.`,
+        logScore: (who, lineCount, gained)=> `✅ ${who} completed ${lineCount} line(s) and scored +${gained}.`,
+        note: `<b>Lines that score:</b><br>• horizontal<br>• down-left diagonal<br>• down-right diagonal<br><br><b>Tip:</b> hover a potato to see how many points that move would score.`,
+        footer: `© 2026 Jaanus Paasoja · License: <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a><br>
+        Free to play, share, and adapt for non-commercial purposes with attribution. Commercial use (sale / paid distribution) is not allowed without permission.`
+      }
+    };
+
+    // ====== Color palette (hex only; UI is visual) ======
+    const COLOR_OPTIONS = [
+      "#ff5a8a", "#44d7ff", "#66ff99", "#ffb347",
+      "#b47cff", "#ff4d4d", "#ffe06b", "#2fe6c6"
+    ];
+
+    function pickDifferentColor(hex){
+      const fallback = COLOR_OPTIONS.find(c => c.toLowerCase() !== hex.toLowerCase());
+      return fallback || "#44d7ff";
+    }
+
+    // ====== Game state ======
+    const state = {
+      lang: "et",
+      N: 8,
+      mode: "pve",
+      difficulty: "medium",
+      turn: 1,
+      scores: [0,0,0],
+      names: { 1:"Mängija 1", 2:"Arvuti" },
+      colors: { 1:"#ff5a8a", 2:"#44d7ff" },
+      cells: [],
+      cellById: new Map(),
+      lines: [],
+      over: false,
+      aiPlayer: 2
+    };
+
+    // ====== DOM ======
+    const uiTitle = document.getElementById("uiTitle");
+    const uiSubtitle = document.getElementById("uiSubtitle");
+    const modePill = document.getElementById("modePill");
+    const turnPill = document.getElementById("turnPill");
+
+    const name1El = document.getElementById("name1");
+    const name2El = document.getElementById("name2");
+    const score1El = document.getElementById("score1");
+    const score2El = document.getElementById("score2");
+    const swatch1 = document.getElementById("swatch1");
+    const swatch2 = document.getElementById("swatch2");
+    const badge1 = document.getElementById("badge1");
+    const badge2 = document.getElementById("badge2");
+
+    const hintBtn = document.getElementById("hintBtn");
+    const newBtn = document.getElementById("newBtn");
+    const clearLogBtn = document.getElementById("clearLogBtn");
+    const helpBtn = document.getElementById("helpBtn");
+
+    const hintLabel = document.getElementById("hintLabel");
+    const newLabel = document.getElementById("newLabel");
+    const logLabel = document.getElementById("logLabel");
+
+    const rulesBox = document.getElementById("rulesBox");
+    const hintPanel = document.getElementById("hintPanel");
+
+    const boardEl = document.getElementById("board");
+    const logEl = document.getElementById("log");
+    const gameOverBox = document.getElementById("gameOverBox");
+    const licenseFooter = document.getElementById("licenseFooter");
+
+    // Settings inputs
+    const langSel = document.getElementById("lang");
+    const modeSel = document.getElementById("mode");
+    const baseNInput = document.getElementById("baseN");
+    const diffSel = document.getElementById("difficulty");
+    const p1NameInput = document.getElementById("player1Name");
+    const p2NameInput = document.getElementById("player2Name");
+    const p2NameWrap = document.getElementById("p2NameWrap");
+    const applyBtn = document.getElementById("applyBtn");
+
+    // Visual pickers
+    const p1ColorPicker = document.getElementById("p1ColorPicker");
+    const p2ColorPicker = document.getElementById("p2ColorPicker");
+    const p1ColorValue = document.getElementById("p1ColorValue");
+    const p2ColorValue = document.getElementById("p2ColorValue");
+    const p2ColorWrap = document.getElementById("p2ColorWrap");
+
+    // Labels to translate
+    const settingsTitle = document.getElementById("settingsTitle");
+    const langLabel = document.getElementById("langLabel");
+    const modeLabel = document.getElementById("modeLabel");
+    const baseLabel = document.getElementById("baseLabel");
+    const diffLabel = document.getElementById("diffLabel");
+    const p1NameLabel = document.getElementById("p1NameLabel");
+    const p2NameLabel = document.getElementById("p2NameLabel");
+    const p1ColorLabel = document.getElementById("p1ColorLabel");
+    const p2ColorLabel = document.getElementById("p2ColorLabel");
+    const applyLabel = document.getElementById("applyLabel");
+    const noteBox = document.getElementById("noteBox");
+
+    // ====== Utils ======
+    const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
+    const randInt = (a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+
+    function log(msg){
+      const d=document.createElement("div");
+      d.textContent=msg;
+      logEl.appendChild(d);
+      logEl.scrollTop=logEl.scrollHeight;
+    }
+    function clearLog(){ logEl.innerHTML=""; }
+
+    // ====== Visual color pickers ======
+    function renderColorPicker(pickerEl, hiddenInputEl, player){
+      pickerEl.innerHTML = "";
+      const selected = (player===1) ? state.colors[1] : state.colors[2];
+
+      for(const hex of COLOR_OPTIONS){
+        const chip = document.createElement("div");
+        chip.className = "colorChip";
+        chip.style.background = hex;
+        chip.setAttribute("role", "button");
+        chip.setAttribute("tabindex", "0");
+
+        const isSelected = hex.toLowerCase() === selected.toLowerCase();
+        if(isSelected) chip.classList.add("selected");
+
+        chip.addEventListener("click", () => selectColor(player, hex));
+        chip.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " ") { e.preventDefault(); selectColor(player, hex); }
+        });
+
+        pickerEl.appendChild(chip);
+      }
+
+      hiddenInputEl.value = selected;
+      syncColorPickerDisabled();
+      syncColorPickerSelected();
+    }
+
+    function syncColorPickerSelected(){
+      const setSelected = (pickerEl, hex) => {
+        [...pickerEl.querySelectorAll(".colorChip")].forEach(chip=>{
+          chip.classList.toggle("selected", chip.style.background.toLowerCase() === hex.toLowerCase());
+        });
+      };
+      setSelected(p1ColorPicker, state.colors[1]);
+      setSelected(p2ColorPicker, state.colors[2]);
+      p1ColorValue.value = state.colors[1];
+      p2ColorValue.value = state.colors[2];
+    }
+
+    function syncColorPickerDisabled(){
+      // prevent selecting same color in PvP: visually disable the other player's currently selected color
+      const p1 = state.colors[1].toLowerCase();
+      const p2 = state.colors[2].toLowerCase();
+
+      const disableIn = (pickerEl, hexToDisable) => {
+        [...pickerEl.querySelectorAll(".colorChip")].forEach(chip=>{
+          const isDisabled = chip.style.background.toLowerCase() === hexToDisable;
+          chip.setAttribute("aria-disabled", isDisabled ? "true" : "false");
+          if(isDisabled){
+            chip.style.pointerEvents = "none";
+          } else {
+            chip.style.pointerEvents = "";
+          }
+        });
+      };
+
+      if(state.mode === "pvp"){
+        disableIn(p1ColorPicker, p2);
+        disableIn(p2ColorPicker, p1);
+      } else {
+        // PvE: player1 can choose anything, player2 picker is hidden anyway
+        disableIn(p1ColorPicker, ""); // none
+        disableIn(p2ColorPicker, "");
+      }
+    }
+
+    function selectColor(player, hex){
+      if(state.mode === "pvp"){
+        // don't allow same color
+        const other = player===1 ? 2 : 1;
+        if(hex.toLowerCase() === state.colors[other].toLowerCase()) return;
+      }
+      state.colors[player] = hex;
+      if(state.mode === "pve"){
+        state.colors[2] = pickDifferentColor(state.colors[1]);
+      }
+      // update UI immediately
+      syncColorPickerDisabled();
+      syncColorPickerSelected();
+      updateTopUI(); // updates swatches
+      renderCells(); // keeps consistent
+    }
+
+    // ====== Board model ======
+    const cellId=(r,p)=>`c_${r}_${p}`;
+
+    function buildCells(N){
+      state.cells=[]; state.cellById=new Map();
+      for(let r=0;r<N;r++){
+        for(let p=0;p<=r;p++){
+          const id=cellId(r,p);
+          const c={id,r,p,owner:0};
+          state.cells.push(c);
+          state.cellById.set(id,c);
+        }
+      }
+    }
+
+    function buildLines(N){
+      const lines=[];
+      for(let r=0;r<N;r++){
+        const ids=[]; for(let p=0;p<=r;p++) ids.push(cellId(r,p));
+        lines.push({id:`H_${r}`, type:"H", cells:ids, len:ids.length, scored:false});
+      }
+      for(let p=0;p<N;p++){
+        const ids=[]; for(let r=p;r<N;r++) ids.push(cellId(r,p));
+        lines.push({id:`DL_${p}`, type:"DL", cells:ids, len:ids.length, scored:false});
+      }
+      for(let k=0;k<N;k++){
+        const ids=[]; for(let r=k;r<N;r++){ const p=r-k; ids.push(cellId(r,p)); }
+        lines.push({id:`DR_${k}`, type:"DR", cells:ids, len:ids.length, scored:false});
+      }
+      state.lines=lines;
+    }
+
+    // ====== SVG strike lines ======
+    function svgEl(){ return document.getElementById("linesSvg"); }
+    function clearSvgLines(){
+      const s=svgEl();
+      while(s.firstChild) s.removeChild(s.firstChild);
+    }
+    function sizeSvgToBoard(){
+      const s=svgEl();
+      const rect=boardEl.getBoundingClientRect();
+      s.setAttribute("width", rect.width);
+      s.setAttribute("height", rect.height);
+      s.setAttribute("viewBox", `0 0 ${rect.width} ${rect.height}`);
+    }
+    function centerOfButton(btn){
+      const b=btn.getBoundingClientRect();
+      const brd=boardEl.getBoundingClientRect();
+      return { x:(b.left-brd.left)+b.width/2, y:(b.top-brd.top)+b.height/2 };
+    }
+    function drawStrikeForLine(line){
+      const firstBtn = boardEl.querySelector(`[data-id="${line.cells[0]}"]`);
+      const lastBtn  = boardEl.querySelector(`[data-id="${line.cells[line.cells.length-1]}"]`);
+      if(!firstBtn || !lastBtn) return;
+      const a=centerOfButton(firstBtn), b=centerOfButton(lastBtn);
+
+      const ln=document.createElementNS("http://www.w3.org/2000/svg","line");
+      ln.setAttribute("x1",a.x); ln.setAttribute("y1",a.y);
+      ln.setAttribute("x2",b.x); ln.setAttribute("y2",b.y);
+      ln.setAttribute("class","lineStroke");
+      svgEl().appendChild(ln);
+    }
+
+    // ====== Scoring logic ======
+    function completedLinesUnscored(){
+      const completed=[];
+      for(const ln of state.lines){
+        if(ln.scored) continue;
+        let ok=true;
+        for(const id of ln.cells){
+          const c=state.cellById.get(id);
+          if(!c || c.owner===0){ ok=false; break; }
+        }
+        if(ok) completed.push(ln);
+      }
+      return completed;
+    }
+
+    function pointsIfPlace(id, player){
+      const c=state.cellById.get(id);
+      if(!c || c.owner!==0) return 0;
+      c.owner=player;
+      const done=completedLinesUnscored();
+      let g=0; for(const ln of done) g+=ln.len;
+      c.owner=0;
+      return g;
+    }
+
+    function awardLines(lines, player){
+      if(!lines.length) return 0;
+      let gained=0;
+      for(const ln of lines){ ln.scored=true; gained+=ln.len; }
+      state.scores[player]+=gained;
+
+      requestAnimationFrame(()=>{
+        sizeSvgToBoard();
+        for(const ln of lines) drawStrikeForLine(ln);
+      });
+
+      return gained;
+    }
+
+    function allCellsClaimed(){ return state.cells.every(c=>c.owner!==0); }
+
+    // ====== Render board ======
+    function renderBoard(){
+      boardEl.innerHTML = `<svg class="lines" id="linesSvg"></svg>`;
+      for(let r=0;r<state.N;r++){
+        const row=document.createElement("div");
+        row.className="rowLine";
+        for(let p=0;p<=r;p++){
+          const id=cellId(r,p);
+          const btn=document.createElement("button");
+          btn.className="potato";
+          btn.type="button";
+          btn.dataset.id=id;
+
+          const tip=document.createElement("div");
+          tip.className="tip";
+          btn.appendChild(tip);
+
+          btn.addEventListener("click", ()=>onHumanClick(id));
+          row.appendChild(btn);
+        }
+        boardEl.appendChild(row);
+      }
+
+      requestAnimationFrame(()=>{
+        sizeSvgToBoard();
+        clearSvgLines();
+        for(const ln of state.lines){ if(ln.scored) drawStrikeForLine(ln); }
+      });
+    }
+
+    function renderCells(){
+      const aiTurnNow = (state.mode==="pve" && state.turn===state.aiPlayer);
+      const t = I18N[state.lang];
+
+      for(const c of state.cells){
+        const btn=boardEl.querySelector(`[data-id="${c.id}"]`);
+        if(!btn) continue;
+
+        btn.classList.remove("preview");
+        btn.style.background = "";
+        btn.style.borderColor = "rgba(255,255,255,.18)";
+
+        if(c.owner===1){
+          btn.style.background = `linear-gradient(180deg, ${state.colors[1]}CC, ${state.colors[1]}88)`;
+          btn.style.borderColor = `${state.colors[1]}AA`;
+        }
+        if(c.owner===2){
+          btn.style.background = `linear-gradient(180deg, ${state.colors[2]}CC, ${state.colors[2]}88)`;
+          btn.style.borderColor = `${state.colors[2]}AA`;
+        }
+
+        btn.disabled = state.over || aiTurnNow || c.owner!==0;
+
+        const tip = btn.querySelector(".tip");
+        if(tip){
+          if(c.owner!==0) tip.textContent = "";
+          else{
+            const pts = pointsIfPlace(c.id, state.turn);
+            tip.textContent = t.hoverTipPos(pts);
+          }
+        }
+      }
+    }
+
+    // ====== UI updates ======
+    function whoName(player){ return state.names[player]; }
+
+    function updateTopUI(){
+      const t = I18N[state.lang];
+
+      uiTitle.textContent = t.title;
+      uiSubtitle.textContent = t.subtitle;
+
+      modePill.textContent = (state.mode==="pve") ? t.modePve : t.modePvp;
+
+      if(state.over){
+        turnPill.textContent = `${t.turn}: —`;
+      } else {
+        turnPill.textContent = `${t.turn}: ${whoName(state.turn)}`;
+      }
+
+      name1El.textContent = state.names[1];
+      name2El.textContent = state.names[2];
+      score1El.textContent = state.scores[1];
+      score2El.textContent = state.scores[2];
+
+      // swatches show chosen color
+      swatch1.style.background = state.colors[1];
+      swatch2.style.background = state.colors[2];
+
+      // badges: keep minimal (no names/codes)
+      badge1.textContent = " ";
+      badge2.textContent = " ";
+
+      hintLabel.textContent = t.hint;
+      newLabel.textContent = t.newGame;
+      logLabel.textContent = t.clearLog;
+
+      rulesBox.innerHTML = `
+        <b>${t.rulesTitle}</b> ${t.rules}
+        <div style="margin-top:6px; color:rgba(234,240,255,.75); font-size:13px;">
+          ${t.tip}
+        </div>
+      `;
+
+      settingsTitle.textContent = t.settings;
+      langLabel.textContent = t.language;
+      modeLabel.textContent = t.gameMode;
+      baseLabel.textContent = t.base;
+      diffLabel.textContent = t.diff;
+      p1NameLabel.textContent = t.p1Name;
+      p2NameLabel.textContent = t.p2Name;
+      p1ColorLabel.textContent = t.p1Color;
+      p2ColorLabel.textContent = t.p2Color;
+      applyLabel.textContent = t.apply;
+
+      noteBox.innerHTML = t.note;
+      licenseFooter.innerHTML = t.footer;
+    }
+
+    function updateVisibility(){
+      const isPve = state.mode === "pve";
+      p2NameWrap.classList.toggle("hidden", isPve);
+      p2ColorWrap.classList.toggle("hidden", isPve);
+      diffSel.disabled = !isPve;
+    }
+
+    function toggleRules(){
+      rulesBox.classList.toggle("hidden");
+    }
+
+    // ====== Moves ======
+    function switchTurn(){
+      state.turn = (state.turn === 1) ? 2 : 1;
+      updateTopUI();
+      renderCells();
+    }
+
+    function endGame(){
+      state.over = true;
+      const t = I18N[state.lang];
+
+      const s1 = state.scores[1];
+      const s2 = state.scores[2];
+
+      let msg;
+      if(s1 > s2) msg = t.gameOverWin(state.names[1], s1, s2);
+      else if(s2 > s1) msg = t.gameOverWin(state.names[2], s1, s2);
+      else msg = t.gameOverDraw(s1, s2);
+
+      gameOverBox.textContent = msg;
+      gameOverBox.classList.add("show");
+      log(msg);
+
+      updateTopUI();
+      renderCells();
+    }
+
+    function applyMove(id, player){
+      if(state.over) return;
+      const c = state.cellById.get(id);
+      if(!c || c.owner !== 0) return;
+
+      c.owner = player;
+
+      const t = I18N[state.lang];
+      log(t.logMove(whoName(player)));
+
+      renderCells();
+
+      const done = completedLinesUnscored();
+      if(done.length){
+        const gained = awardLines(done, player);
+        score1El.textContent = state.scores[1];
+        score2El.textContent = state.scores[2];
+        log(t.logScore(whoName(player), done.length, gained));
+      }
+
+      if(allCellsClaimed()){ endGame(); return; }
+
+      switchTurn();
+
+      if(state.mode==="pve" && !state.over && state.turn===state.aiPlayer){
+        setTimeout(aiTurn, 260);
+      }
+    }
+
+    function onHumanClick(id){
+      const aiTurnNow = (state.mode==="pve" && state.turn===state.aiPlayer);
+      if(aiTurnNow) return;
+      applyMove(id, state.turn);
+    }
+
+    // ====== AI + Hint ======
+    function freeCells(){ return state.cells.filter(c=>c.owner===0).map(c=>c.id); }
+
+    function simulateGain(id, player){
+      const c=state.cellById.get(id);
+      if(!c || c.owner!==0) return -Infinity;
+      c.owner=player;
+      const done=completedLinesUnscored();
+      let g=0; for(const ln of done) g+=ln.len;
+      c.owner=0;
+      return g;
+    }
+
+    function bestMoveGreedy(player){
+      const free=freeCells();
+      let best=[], bestGain=-1;
+      for(const id of free){
+        const g=simulateGain(id, player);
+        if(g>bestGain){ bestGain=g; best=[id]; }
+        else if(g===bestGain){ best.push(id); }
+      }
+      return { id: best[randInt(0,best.length-1)], gain: bestGain };
+    }
+
+    function bestMoveBlock(player){
+      const free=freeCells();
+      const opp = player===1 ? 2 : 1;
+      let bestId=free[0], bestVal=-Infinity;
+
+      for(const id of free){
+        const gMe = simulateGain(id, player);
+
+        const c=state.cellById.get(id);
+        c.owner=player;
+
+        const free2=freeCells();
+        let oppBest=0;
+        for(const id2 of free2) oppBest=Math.max(oppBest, simulateGain(id2, opp));
+
+        c.owner=0;
+
+        const val = gMe - oppBest;
+        if(val>bestVal){ bestVal=val; bestId=id; }
+      }
+      return bestId;
+    }
+
+    function aiTurn(){
+      if(state.over) return;
+      if(state.mode!=="pve" || state.turn!==state.aiPlayer) return;
+
+      let choice;
+      if(state.difficulty==="easy"){
+        if(Math.random()<0.5){
+          const free=freeCells();
+          choice = free[randInt(0, free.length-1)];
+        } else {
+          choice = bestMoveGreedy(state.aiPlayer).id;
+        }
+      } else if(state.difficulty==="medium"){
+        choice = bestMoveGreedy(state.aiPlayer).id;
+      } else {
+        const greedy = bestMoveGreedy(state.aiPlayer);
+        choice = (greedy.gain>0) ? greedy.id : bestMoveBlock(state.aiPlayer);
+      }
+
+      applyMove(choice, state.aiPlayer);
+    }
+
+    function showHint(){
+      if(state.over) return;
+
+      const t = I18N[state.lang];
+      const currentPlayer = state.turn;
+
+      const free=freeCells();
+      if(!free.length) return;
+
+      let pick;
+      if(state.difficulty==="easy"){
+        pick = free[randInt(0, free.length-1)];
+      } else if(state.difficulty==="medium"){
+        pick = bestMoveGreedy(currentPlayer).id;
+      } else {
+        const greedy = bestMoveGreedy(currentPlayer);
+        pick = (greedy.gain>0) ? greedy.id : bestMoveBlock(currentPlayer);
+      }
+
+      const pts = pointsIfPlace(pick, currentPlayer);
+
+      boardEl.querySelectorAll(".potato.preview").forEach(b=>b.classList.remove("preview"));
+      const btn = boardEl.querySelector(`[data-id="${pick}"]`);
+      if(btn) btn.classList.add("preview");
+
+      hintPanel.classList.add("show");
+      hintPanel.innerHTML = pts>0
+        ? t.hintText(whoName(currentPlayer), pts)
+        : t.hintText0(whoName(currentPlayer));
+    }
+
+    // ====== Settings / init ======
+    function applyLanguage(lang){
+      state.lang = lang;
+      updateTopUI();
+    }
+
+    function applySettings(){
+      state.lang = langSel.value;
+      state.N = clamp(parseInt(baseNInput.value || "8", 10), 2, 15);
+      state.mode = modeSel.value === "pvp" ? "pvp" : "pve";
+      state.difficulty = diffSel.value;
+
+      const t = I18N[state.lang];
+      const p1 = (p1NameInput.value || "").trim();
+      state.names[1] = p1 || t.player1;
+
+      if(state.mode === "pve"){
+        state.names[2] = t.computer;
+      } else {
+        const p2 = (p2NameInput.value || "").trim();
+        state.names[2] = p2 || t.player2;
+      }
+
+      // Use colors picked in visual pickers (hidden inputs)
+      const chosenP1 = (p1ColorValue.value || state.colors[1]);
+      state.colors[1] = chosenP1;
+
+      if(state.mode === "pve"){
+        state.colors[2] = pickDifferentColor(state.colors[1]);
+      } else {
+        const chosenP2 = (p2ColorValue.value || state.colors[2]);
+        state.colors[2] = (chosenP2.toLowerCase() === chosenP1.toLowerCase())
+          ? pickDifferentColor(chosenP1)
+          : chosenP2;
+      }
+
+      newGame({ keepLog:false });
+
+      updateVisibility();
+      updateTopUI();
+      renderCells();
+
+      // re-render pickers to reflect final chosen colors + disabled rules
+      renderColorPicker(p1ColorPicker, p1ColorValue, 1);
+      renderColorPicker(p2ColorPicker, p2ColorValue, 2);
+    }
+
+    function newGame({ keepLog=false } = {}){
+      state.over = false;
+      state.scores = [0,0,0];
+      state.turn = 1;
+
+      gameOverBox.classList.remove("show");
+      gameOverBox.textContent = "";
+      hintPanel.classList.remove("show");
+      hintPanel.innerHTML = "";
+
+      if(!keepLog) clearLog();
+
+      buildCells(state.N);
+      buildLines(state.N);
+
+      renderBoard();
+      renderCells();
+
+      const t = I18N[state.lang];
+      const total = state.N * (state.N + 1) / 2;
+      log(t.logNew(state.N, total));
+
+      updateTopUI();
+      updateVisibility();
+    }
+
+    // ====== Events ======
+    applyBtn.addEventListener("click", applySettings);
+    newBtn.addEventListener("click", () => newGame({ keepLog:false }));
+    clearLogBtn.addEventListener("click", clearLog);
+    hintBtn.addEventListener("click", showHint);
+    helpBtn.addEventListener("click", () => rulesBox.classList.toggle("hidden"));
+
+    modeSel.addEventListener("change", () => {
+      state.mode = modeSel.value === "pvp" ? "pvp" : "pve";
+      updateVisibility();
+      // in PvE, auto-set computer color different from p1
+      if(state.mode === "pve"){
+        state.colors[2] = pickDifferentColor(state.colors[1]);
+      }
+      renderColorPicker(p1ColorPicker, p1ColorValue, 1);
+      renderColorPicker(p2ColorPicker, p2ColorValue, 2);
+      updateTopUI();
+    });
+
+    langSel.addEventListener("change", () => {
+      applyLanguage(langSel.value);
+    });
+
+    window.addEventListener("resize", ()=>{
+      requestAnimationFrame(()=>{
+        sizeSvgToBoard();
+        clearSvgLines();
+        for(const ln of state.lines){ if(ln.scored) drawStrikeForLine(ln); }
+      });
+    });
+
+    // ====== Init ======
+    (function init(){
+      // defaults
+      langSel.value = state.lang;
+      modeSel.value = state.mode;
+      baseNInput.value = state.N;
+      diffSel.value = state.difficulty;
+
+      // convenience prefill (remove if you want)
+      p1NameInput.value = "";
+
+      // init pickers
+      p1ColorValue.value = state.colors[1];
+      p2ColorValue.value = state.colors[2];
+      renderColorPicker(p1ColorPicker, p1ColorValue, 1);
+      renderColorPicker(p2ColorPicker, p2ColorValue, 2);
+
+      updateVisibility();
+      updateTopUI();
+      newGame({ keepLog:false });
+    })();
+  </script>
+</body>
+</html>
