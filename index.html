@@ -168,10 +168,11 @@
     /* Board */
     .boardWrap{ position:relative; overflow:auto; }
     .board{
-      position:relative;
-      padding:14px 10px 20px;
-      min-height: 420px;
-    }
+    position:relative;
+    padding:44px 10px 20px;  
+    min-height: 420px;
+   }
+
 
     /* SVG lines must be above potatoes */
     svg.lines{
@@ -377,7 +378,7 @@
 
         <div class="inner">
           <div class="rulesBox" id="rulesBox">
-            <b>Reeglid:</b> Iga käiguga värvi <b>täpselt 1</b> kartul. Kui pärast sinu käiku saab mõni rida täis, saad <b>rea pikkuse</b> jagu punkte ja rida tõmmatakse läbi.
+            <b>Reeglid:</b> Iga käiguga värvi <b>täpselt 1</b> kartul. Kui pärast sinu käiku saab mõni rida täis, saad <b>rea pikkuse</b> jagu punkte ja rida kriipsutatakse läbi.
             <div style="margin-top:6px; color:rgba(234,240,255,.75); font-size:13px;">
               Nipp: proovi teha käike, mis annavad kohe punkte, ja väldi olukorda, kus vastasel jääb rida “viimase puudu”.
             </div>
@@ -508,7 +509,7 @@
         player2: "Mängija 2",
         computer: "Arvuti",
         rulesTitle: "Reeglid:",
-        rules: "Iga käiguga värvi täpselt 1 kartul. Kui pärast sinu käiku saab mõni rida täis, saad rea pikkuse jagu punkte ja rida tõmmatakse läbi.",
+        rules: "Iga käiguga värvi täpselt 1 kartul. Kui pärast sinu käiku saab mõni rida täis, saad rea pikkuse jagu punkte ja rida kriipsutatakse läbi.",
         tip: "Nipp: proovi teha käike, mis annavad kohe punkte, ja väldi olukorda, kus vastasel jääb rida “viimase puudu”.",
         hoverTipPos: (pts)=> pts>0 ? `+${pts} punkti` : "0 punkti",
         hintText: (who, pts)=> `💡 <b>Soovitus (${who}):</b> kliki rohelise raamiga kartulit. See annaks <b>${pts}</b> punkti kohe.`,
@@ -1272,3 +1273,4 @@
   </script>
 </body>
 </html>
+
